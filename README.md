@@ -1,1 +1,1 @@
-# Statisrisches-Programmieren
+#Statistisches-Programmieren
