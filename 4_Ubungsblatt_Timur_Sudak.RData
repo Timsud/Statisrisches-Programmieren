@@ -1,0 +1,498 @@
+####Aufgabe 1
+install.packages("lsr")
+library("lsr")
+ chi.mat <- function(x, y, prp.table = FALSE, rand.hfg = FALSE, margin = NULL , miss = TRUE, prz = FALSE, digits=1, max_lev = 5, max_lng = 7, zl_hfg = 5){    
+         if(length(x) != length(y)){
+             stop("Die Lange von zwei Vektoren muss gleich sein")
+             }
+     	 if(class(x) == "character"){
+              x = factor(x, ordered = TRUE)
+              }
+         if(class(y) == "character"){
+              y = factor(y, ordered = TRUE)
+              }
+         if(class(x) == "factor" && nchar(levels(x))> max_lng){
+              levels(x) = abbreviate(levels(x), minlength = max_lng)
+              } 
+         if(class(y) == "factor" && nchar(levels(y))> max_lng){
+              levels(y) = abbreviate(levels(y), minlength = max_lng)
+              } 
+
+         if((class(x)== "factor") && (nlevels(x) > max_lev)) {
+              if((is.numeric(as.numeric(levels(x)))==TRUE)){
+			         if(any(is.na(x))){
+                         kls_x =x
+                         while(length(kls_x) %% max_lev !=0){ 
+                              kls_x= c(kls_x,0)
+                             }
+                         mtr_x = matrix(kls_x,ncol=max_lev)
+                         dt.fr_x_sum = sapply(data.frame(mtr_x),sum, na.rm= TRUE)
+                         frt_wrt_lvlss_x = mtr_x[ ,dt.fr_x_sum>0]
+                         new_Lvls_x =  paste0("lv", 1:ncol(frt_wrt_lvlss_x))
+                         # Anzahl wie viel werte jede Klasse hat.
+                         anz_jed_klss_x  = apply(frt_wrt_lvlss_x != 0, 2, sum, na.rm = TRUE)
+                         lvls_x = rep(NA, nlevels(x)) 
+                         p = 0  
+                         for(j in 1:ncol(frt_wrt_lvlss_x)) { 
+                             lvls_x[p+1:anz_jed_klss_x[j]] = rep(new_Lvls_x[j],anz_jed_klss_x[j]) 
+                             p = p + anz_jed_klss_x[j]
+                             }
+                         o = rep(0, 144)
+                         o[!is.na(x)] = lvls_x
+                         o[is.na(x)] = NA 
+                         x = factor(o, levels = unique(lvls_x))
+                     }  else {
+                             kls_x = x 
+					         while(length(kls_x) %% max_lev !=0){ 
+						             kls_x = c(kls_x,0)
+                             }
+                             mtr_x = matrix(kls_x,ncol=max_lev)
+                             dt.fr_x_sum = sapply(data.frame(mtr_x),sum, na.rm= TRUE)
+                             frt_wrt_lvlss_x = mtr_x[ ,dt.fr_x_sum>0]
+                             ######Verringern anzahl von Levels#######
+                             new_Lvls_x =  paste0("lv", 1:ncol(frt_wrt_lvlss_x))
+                             # Anzahl wie viel werte jede Klasse hat.
+                             anz_jed_klss_x = apply(frt_wrt_lvlss_x != 0, 2, sum, na.rm=TRUE)
+                             lvls_x = rep(NA, nlevels(x))
+                             p = 0  
+                             for(j in 1:ncol(frt_wrt_lvlss_x)) { 
+                                 lvls_x[p+1:anz_jed_klss_x[j]] = rep(new_Lvls_x[j],anz_jed_klss_x[j]) 
+                                 p = p + anz_jed_klss_x[j]
+                                 }
+                             x = factor(lvls_x , levels = unique(lvls_x))  
+                            } 
+					 }   else {
+                               stop(" Anzahl von Levels uberschreitet die maximale Anzahl!")
+                              }
+                }
+
+         if((class(y)== "factor") && (nlevels(y) > max_lev)) {
+             if((is.numeric(as.numeric(levels(y)))==TRUE)){
+                     if(any(is.na(y))){
+                         kls_y =y
+                         while(length(kls_y) %% max_lev !=0){ 
+                              kls_y= c(kls_y,0)
+                             }
+
+                         mtr_y = matrix(kls_y,ncol=max_lev)
+                         dt.fr_y_sum = sapply(data.frame(mtr_y),sum, na.rm= TRUE)
+                         frt_wrt_lvlss_y = mtr_y[ ,dt.fr_y_sum>0]
+                         new_Lvls_y =  paste0("lv", 1:ncol(frt_wrt_lvlss_y))
+                         # Anzahl wie viel werte jede Klasse hat.
+                         anz_jed_klss_y  = apply(frt_wrt_lvlss_y != 0, 2, sum, na.rm = TRUE)
+                         lvls_y = rep(NA, nlevels(y)) 
+                         p = 0  
+                         for(v in 1:ncol(frt_wrt_lvlss_y)) { 
+                             lvls_y[p+1:anz_jed_klss_y[v]] = rep(new_Lvls_y[v],anz_jed_klss_y[v]) 
+                             p = p + anz_jed_klss_y[v]
+                             }
+                         r = rep(0, 144)
+                         r[!is.na(y)] = lvls_y
+                         r[is.na(y)] = NA 
+                         y = factor(r, levels = unique(lvls_y))
+                     }  else {
+					         kls_y = y 
+					         while(length(kls_y) %% max_lev !=0){ 
+						     kls_y = c(kls_y,0)
+                           }
+                        mtr_y = matrix(kls_y,ncol=max_lev)
+                        dt.fr_y_sum = sapply(data.frame(mtr_y),sum, na.rm = TRUE)
+                        frt_wrt_lvlss_y = mtr_y[ ,dt.fr_y_sum>0]
+                     ######Funktionierte Version#######
+                     new_Lvls_y =  paste0("lv", 1:ncol(frt_wrt_lvlss_y))
+                     # Anzahl wie viel werte jede Klasse hat.
+                     anz_jed_klss_y = apply(frt_wrt_lvlss_y != 0, 2, sum, na.rm=TRUE)
+                     anz_jed_klss_y
+                     lvls_y = rep(NA, nlevels(y))
+                     p = 0  
+                     for(v in 1:ncol(frt_wrt_lvlss_y)) { 
+                         lvls_y[p+1:anz_jed_klss_y[v]] = rep(new_Lvls_y[v],anz_jed_klss_y[v]) 
+                         p = p + anz_jed_klss_y[v]
+                        }
+                     y = factor(lvls_y, levels = unique(lvls_y))  
+                         }   
+                   }     else {
+                                stop(" Anzahl von Levels uberschreitet die maximale Anzahl!")
+                               }
+               }
+        
+         if(rand.hfg == TRUE) {
+		    if(length(x)< zl_hfg || length(y) < zl_hfg){
+                 if(prp.table == TRUE){
+                     if(prz == TRUE){
+                         mit_prz= round(addmargins(prop.table(table(x,y, exclude = miss), margin = margin)), digits= digits)*100
+                         for(i in 1:ncol(mit_prz)){
+                          mit_prz[,i]= paste(mit_prz[,i], "%", sep="")
+                          }
+                             lst = list(hfg = table(x,y, exclude= miss))
+                             lst = c(lst, list(mit_prz = mit_prz))
+                             lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y))) 
+                             warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")
+                       }     else {
+                                 lst = list(hfg = addmargins(table(x,y,exclude= miss)))
+                                 lst = c(lst, list(rltv_hfg = round(addmargins(prop.table(table(x,y,exclude= miss), margin = margin)), digits = digits)))
+                                 lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y))) 
+                                 warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")
+							   }
+                  }    else {
+                         lst = list(hfg = addmargins(table(x,y,exclude= miss)))
+                         lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                         return(lst)						
+                         warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")                
+					}
+				}      else {
+				        if(prp.table == TRUE){
+                             if(prz == TRUE){
+                                 mit_prz= round(addmargins(prop.table(table(x,y, exclude = miss), margin = margin)), digits = digits)*100
+                                 for(i in 1:ncol(mit_prz)){
+                                 mit_prz[,i]= paste(mit_prz[,i], "%", sep="")
+                                 }
+                                 lst = list(hfg = addmargins(table(x,y,exclude= miss)))
+                                 lst = c(lst, list(mit_prz = mit_prz))
+                                 lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                 return(lst)								 
+                                 }     else {
+                                             lst = list(hfg = addmargins(table(x,y,exclude= miss)))
+                                             lst = c(lst, list(rltv_hfg = round(addmargins(prop.table(table(x,y,exclude= miss), margin = margin)), digits = digits)))
+                                             lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                             return(lst)											 
+							                 }
+                            }    else {
+                                         lst = list(hfg = addmargins(table(x,y,exclude= miss)))
+                                         lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                         return(lst)										 
+					                 }
+				}
+			}    else {
+			             if(length(x)< zl_hfg || length(y) < zl_hfg){
+                             if(prp.table == TRUE){
+                                 if(prz == TRUE){
+                                 mit_prz= round(prop.table(table(x,y,exclude= miss), margin = margin), digits= digits)*100
+                                 for(i in 1:ncol(mit_prz)){
+                                  mit_prz[,i]= paste(mit_prz[,i], "%", sep="")
+                                }
+                                 lst = list(hfg = table(x,y, exclude= miss))
+                                 lst = c(lst, list(mit_prz = mit_prz))
+                                 lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                 return(lst)								 
+                                 warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")
+                                     }      else {
+                                                 lst = list(hfg = table(x,y, exclude= miss))
+                                                 lst = c(lst, rltv_hfg = list(round(prop.table(table(x,y, exclude= miss), margin = margin), digits = digits)))
+                                                 lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                                 return(lst)												 
+                                                 warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")
+							                     }
+                                }    else {
+                                         lst = list(hfg = table(x,y, exclude= miss))
+                                         lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y))) 
+                                         return(lst)
+										 warnings("Die Grosse von der Stichprobe zu gering fur prazisse chi_wert")                
+					                     }
+				            }   else {
+				                     if(prp.table == TRUE){
+                                         if(prz == TRUE){
+                                             mit_prz= round(prop.table(table(x,y, exclude= miss), margin = margin), digits= digits)*100
+                                             for(i in 1:ncol(mit_prz)){
+                                             mit_prz[,i]= paste(mit_prz[,i], "%", sep="")
+                                             }
+                                             lst = list(hfg = table(x,y, exclude= miss))
+                                             lst = c(lst, list(mit_prz = mit_prz))
+                                             lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                             return(lst)											 
+                                             }     else {
+                                                         lst = list(hfg = table(x,y, exclude= miss))
+                                                         lst = c(lst, rltv_hfg = list(round(prop.table(table(x,y, exclude= miss), margin = margin), digits = digits)))
+                                                         lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y))) 
+														 return(lst)
+							                             }
+                                         }    else {
+                                                     lst = list(hfg = table(x,y, exclude= miss))
+                                                     lst = c(lst,  list(chi_wert = chisq.test(x,y)$statistic),  list(p_wert = chisq.test(x,y)$p.value), list(CarmersV =cramersV(x,y)))
+                                                     return(lst)					                              
+												  }
+				                     }
+			   
+	             }		   
+			              			 
+	}  
+	
+			   
+####Aufgabe 2			   
+################################TESTING!!!!!!!!!!!!##################################################
+#Wir testen unsere Funktion mit iris Datensatz.
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = TRUE,digits = 5,prz=TRUE ,rand.hfg = TRUE)
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = TRUE,digits = 5,rand.hfg = TRUE)
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = TRUE,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+chi.mat(iris$Species[1:30], iris$Sepal.Length[1:40], prp.table = TRUE,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = FALSE,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = TRUE, margin = 1,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+chi.mat(iris$Species, iris$Sepal.Length, prp.table = TRUE, margin = 2,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+chi.mat(iris$Species[50:53], iris$Sepal.Length[1:4], prp.table = TRUE, margin = 2,digits = 5,prz=TRUE ,rand.hfg = TRUE, max_lng=5)
+		   
+####Aufgabe 3
+load("school.RData")
+####Hier Loeschen wir alle Faktoren, die zu wenig levels gehabt haben.
+{
+A = Sys.time()
+anz_lev = sapply(school, nlevels)
+bool_geb_lev = anz_lev > 1
+ncht_ger = school[!bool_geb_lev]
+new_school = school[bool_geb_lev]
+bool = sapply(sapply(new_school, unique), length) > 1
+ncht_ger = cbind(ncht_ger,school[!bool])
+ncht_ger = cbind(ncht_ger,new_school[,bool][,12])
+NEW =  new_school[,bool]
+NEW[,12] = NULL
+rm(i)
+rm(j)
+mat = matrix(NA, ncol = 78, nrow = 78)
+   for( i in 1:ncol(NEW)){
+      for( j in 1:ncol(NEW)){
+         if(i == j) {
+           mat[j,i] = 0
+           next()
+           }   
+           mat[j,i] = chi.mat(NEW[,i], NEW[ ,j])$chi_wert
+           }
+      }
+   colnames(mat) =  names(NEW)
+   rownames(mat) = names(NEW)
+   Z = Sys.time()
+   }
+   Z-A
+   mat
+   ncht_ger
+###################################################################
+
+
+#####Aufgabe4
+ ##a)
+verl = read.table("verleihungen.rad", header=TRUE, sep= ";", dec=".", na.strings="-")
+##b)
+Verleihung = as.POSIXlt(verl$Verleihung)
+class(Verleihung)
+##c)
+str(verl)
+is(verl$Verleihzeit.in.Minuten)
+
+end_verl =  verl$Verleihzeit.in.Minuten*60 + Verleihung  
+
+##d)
+###########ZUERSTTT das zu machen um Faktor weg zu nehmen.
+verl$Geburtsdatum..TT.MM.JJJJ. = gsub("/", ".", verl$Geburtsdatum..TT.MM.JJJJ.)
+verl$Geburtsdatum..TT.MM.JJJJ. = gsub(",", "", verl$Geburtsdatum..TT.MM.JJJJ.)
+verl$Geburtsdatum..TT.MM.JJJJ. = gsub("nein", "", verl$Geburtsdatum..TT.MM.JJJJ.)
+verl$Geburtsdatum..TT.MM.JJJJ. = gsub("-", ".", verl$Geburtsdatum..TT.MM.JJJJ.)
+#######Arbeiten mit grossen Zahlen
+wrt = as.numeric(as.character(verl$Geburtsdatum..TT.MM.JJJJ.))
+wrt_dt = as.Date(wrt[!is.na(wrt)], origin = as.Date("1903-12-31"))
+pl_grzl = which(wrt > 0)
+pl_grzl
+verl$Geburtsdatum..TT.MM.JJJJ.[pl_grzl] = as.character(wrt_dt)
+verl$Geburtsdatum..TT.MM.JJJJ. = gsub("-", ".", verl$Geburtsdatum..TT.MM.JJJJ.)
+###########
+neu_date = rep(NA, length(verl$Geburtsdatum..TT.MM.JJJJ.))
+neu_date 
+
+
+     bool_nzn = sapply(gregexpr("", verl$Geburtsdatum..TT.MM.JJJJ.), length)== 8  # ohne 19.
+      plz_nzn =  which(bool_nzn)
+     wrt_nzn =  verl$Geburtsdatum..TT.MM.JJJJ.[bool_nzn]
+      spl_wrt = strsplit(wrt_nzn, "[.]")
+      for(i in 1:length(spl_wrt)){
+             spl_wrt[[i]][3] = paste( "19", spl_wrt[[i]][3], sep="")
+           } 
+      v=numeric(length(spl_wrt))
+     mtr = sapply(spl_wrt,paste)
+     v=0
+     k = 0
+     for(i in 1:ncol(mtr)){
+         for(j in 1:nrow(mtr)){
+            v[j] = mtr[j,i]
+            k[i] = paste(v[1],v[2], v[3], sep = ".")
+            }
+            v=0 
+       }
+####Was wir brauchen. Zweistellige verandert war
+  k
+  plz_nzn   
+verl$Geburtsdatum..TT.MM.JJJJ.[ plz_nzn ] = k
+##### Hier machen wir klasse Date.
+dat_clss =    as.Date(verl$Geburtsdatum..TT.MM.JJJJ. , "%d.%m.%Y")
+
+####e)
+as.Date(Verleihung)
+alter_zum_Verl_ZP = difftime(as.Date(Verleihung), dat_clss, units="weeks")/52 
+round(alter_zum_Verl_ZP)   # Wir haben Data soweit gerettet aber in data sowieso komische werte geblieben.
+
+
+
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+			   
+
+
+
+
+
+
+
+
+         
+#######################CHRNOVIK#############################################################
+dat = data.frame(x,y)
+dat
+x
+Chi-Wert
+unclass(cramersV(x,y))
+x
+unclass(chisq.test(x,y))
+y
+chisq.test(x,y)$residuals
+
+install.packages("lsr")
+library("lsr")
+
+("lsr")
+
+library("lsr")
+cat(paste( "k", "l"),paste("l", "K"), sep= "\n")
+table(x,y) < 5
+
+x = 1:8
+y = 6:10
+table(x,y)
+x
+y
+round(prop.table(table(x,y)), digits = 1)
+x= iris$Species[61:120]
+y = iris$Species[1:60]
+bool =  sapply(data.frame(x,y), is.factor)
+o = names(sapply(data.frame(x,y), is.factor))[bool]
+  paste( dat,o,  sep="$")
+length(y)
+length(x)
+list(dat[[o[1]]],dat[[o[2]]])
+y
+dk = iris$Species
+  levels(dk) = abbreviate(levels(dk), 5)
+x = factor(1:15, levels= 1:15)
+levels(x) =paste("Lvl", 1:5, sep="") 
+[6:15])
+#############################WAAASSS ICH BRAUCHE FUER F AUFGABE#################################################################3
+droplevels( x[1:5] )
+############################################################################################################
+x
+dk
+
+length(iris$Species)
+nchar(levels(iris$Species))
+abbreviate(levels(iris$Species), 7)
+unique(unclass(iris$Species))
+
+                               
+        margin=0
+ strsplit(levels(iris$Species), "")
+table(x,y)  
+
+sapply(strsplit(levels(iris$Species), "")
+
+nchar(levels(iris$Species))# Zeigt wie viel Buchstaben gibt
+
+levels(iris$Species)
+v = 1:6
+length(v)%%2==0
+while(length(v) %% 5 !=0){ 
+          v = c(v,0)
+         }
+v
+b= matrix(v,ncol=5)
+b  
+bool = (b!=0)
+    bool
+
+  wrt_b = sapply(data.frame(b),sum)
+   cls_b =  b[,wrt_b >0]
+is_nl <- function(x){
+           return(x==0)
+           }
+sapply(b, is_nl)
+    l= list(b[,1])  
+    for( i in 2:5){
+       l = c(l,list(b[ ,i]))
+     }
+ warning("duck")
+k=  paste("lv", 1:length(l), sep="")  
+levels(x) = k
+
+  for(i in 1:ncol(b)){
+       g = 
+l
+  x = c(1:5, NA)
+  if(miss==TRUE){
+   x[is.na(x)] = "miss" 
+   y[is.na(y)] = "miss"
+  }
+x= 1:10
+table(x,u)
+attributes(u)
+u=  iris$Species[1:10]
+u
+unclass(u)
+##################Zeichnung mit dem Prozentzeichen################################
+x = c(1:5)
+y = c(1,1,1,4,5)
+mit_prz= prop.table(table(x,y))*100
+   for( i in 1:ncol(mit_prz)){
+        mit_prz[,i]= paste(p[,i], "%", sep="")
+     }
+
+
+###### mit Round einfach ueberall round machen und defaul ist 0########### 
+
+######1b muss man gleichzeitig haben rel.hauf und hauf #######
+ unclass(factor(f, ordered=TRUE))         
+f = c(rep("duck", 7), rep("dog", 3), rep("cat",5))
+f
+unclass(as.factor(f))
+chisq.test(iris$Sepal.Length,as.numeric(iris$Species) )
+as.numeric(iris$Species)
+chisq.test(table(f,iris$Sepal.Length[1:15]))
+
+pro
+
+#Maximale Anzahl an Levels pro Merkmal. Wenn die maximale Anzahl an Levels
+#uberschritten wird und wenn alle Levels numerisch sind, soll das Merkmal
+#entsprechend der maximalen Anzahl an Levels recodiert werden. Ansonsten
+#soll die Funktion keine Berechnungen durchfuhren.######
+
+
+str(iris)
+table(iris$Species, iris$Sepal.Length)
